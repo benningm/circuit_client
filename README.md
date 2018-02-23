@@ -1,3 +1,5 @@
+[![Gem Version](https://badge.fury.io/rb/circuit_client.svg)](https://badge.fury.io/rb/circuit_client)
+
 # Circuit Client
 
 circuit\_client is a minimal client for the Circuit REST API.
