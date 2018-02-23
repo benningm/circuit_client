@@ -12,9 +12,9 @@ spec = Gem::Specification.new do |s|
   s.require_paths << 'lib'
   s.bindir = 'bin'
   s.executables << 'send-circuit'
-  s.add_development_dependency('rake')
-  s.add_development_dependency('rdoc')
-  s.add_development_dependency('aruba')
-  s.add_runtime_dependency('faraday')
-  s.add_runtime_dependency('typhoeus')
+  s.add_development_dependency('rake', '~> 12')
+  s.add_development_dependency('rdoc', '~> 6')
+  s.add_development_dependency('aruba', '~> 0')
+  s.add_runtime_dependency('faraday', '~> 0')
+  s.add_runtime_dependency('typhoeus', '~> 1')
 end
