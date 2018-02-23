@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+
+require 'circuit_client/send_message_cli'
+
+app = CircuitClient::SendMessageCli.new
+app.run
+

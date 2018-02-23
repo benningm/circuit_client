@@ -1,0 +1,10 @@
+version: '2'
+services:
+  module:
+    build:
+      context: .
+      args:
+        - "http_proxy=http://172.17.0.1:3128"
+        - "https_proxy=http://172.17.0.1:3128"
+    volumes:
+      - ".:/usr/src/module"
