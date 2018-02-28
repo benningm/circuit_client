@@ -118,7 +118,12 @@ END_USAGE
       options = {}
       options[:subject] = @subject unless @subject.nil?
       puts "sending message to #{conv}..."
-      client.create_message( conv, body, **options )
+      begin
+        client.create_message( conv, body, **options )
+      rescue CircuitClient::ClientError => e
+        puts "Could not send message: #{e.message}"
+        exit 1
+      end
     end
 
     def client

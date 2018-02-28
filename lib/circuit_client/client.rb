@@ -4,6 +4,8 @@ require 'typhoeus/adapters/faraday'
 require 'uri'
 require 'json'
 
+require 'circuit_client/error_middleware'
+
 module CircuitClient
   class Client
     # Set the hostname of the circuit system
@@ -54,7 +56,7 @@ module CircuitClient
     def connection
       @connection ||= Faraday.new(url: base_uri.to_s) do |faraday|
         faraday.response :logger if @trace
-        faraday.use Faraday::Response::RaiseError
+        faraday.use CircuitClient::ErrorMiddleware
         faraday.adapter :typhoeus
       end
     end
