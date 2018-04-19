@@ -7,33 +7,34 @@ require 'json'
 require 'circuit_client/error_middleware'
 
 module CircuitClient
+  # client for accessing circuit API
   class Client
     # Set the hostname of the circuit system
     attr_accessor :host
 
-		# The base path of the API
+    # The base path of the API
     attr_accessor :base_path
 
-		# The protocol to use 'http' or 'https'
+    # The protocol to use 'http' or 'https'
     attr_accessor :protocol
 
-		# Timeout for http requests
+    # Timeout for http requests
     attr_accessor :timeout
 
-		# The client_id for authentication
+    # The client_id for authentication
     attr_accessor :client_id
 
-		# The client_secret for authentication
+    # The client_secret for authentication
     attr_accessor :client_secret
 
-		# The authentication method to use (currently only :client_credentials supported)
+    # The authentication method to use (currently only :client_credentials supported)
     attr_accessor :auth_method
 
-		# Enable tracing (outputs http requests to STDOUT)
-		attr_accessor :trace
+    # Enable tracing (outputs http requests to STDOUT)
+    attr_accessor :trace
 
-		# Initialize a new client
-		# 
+    # Initialize a new client
+    # 
     # Examples
     #
     #   CircuitClient::Client.new do |c|
@@ -52,7 +53,7 @@ module CircuitClient
       yield self
     end
 
-		# The faraday http connection object
+    # The faraday http connection object
     def connection
       @connection ||= Faraday.new(url: base_uri.to_s) do |faraday|
         faraday.response :logger if @trace
@@ -61,7 +62,7 @@ module CircuitClient
       end
     end
 
-		# The token used for authentication
+    # The token used for authentication
     def access_token
       return @access_token unless @access_token.nil?
       case @auth_method
@@ -72,7 +73,7 @@ module CircuitClient
       end
     end
 
-		# Authenticate using client_credentials method
+    # Authenticate using client_credentials method
     def auth_client_credentials
       raise "client_id parameter required" if @client_id.nil?
       raise "client_secret parameter required" if @client_secret.nil?
@@ -86,31 +87,47 @@ module CircuitClient
       data['access_token']
     end
 
-		# Return URI with path elements
+    # Return URI with path elements
     def base_uri
       URI("#{@protocol}://#{@host}")
     end
 
-		# Returns an URI with the base_uri and the supplied path
+    # Returns an URI with the base_uri and the supplied path
     def build_uri(path)
       uri = base_uri
       uri.path = path
       uri.to_s
     end
 
-		# Returns an URI and with a path relative to the base_path of the API
+    # Returns an URI and with a path relative to the base_path of the API
     def build_api_uri(path)
       build_uri("#{@base_path}#{path}")
     end
 
-		# Create a new message in a existing conversation
-		#
-		# Examples
+    # Create a new message in a existing conversation
     #
-    #   client.create_message('<convId>', 'my message text...', subject: 'Todays meeting')
+    # Examples
+    #
+    #   client.create_message(
+    #     '<convId>',
+    #     'my message text...',
+    #     subject: 'Todays meeting'
+    #   )
+    #
+    # To send to an existing message item use :item_id parameter:
+    #
+    #   client.create_message(
+    #     '<convId>',
+    #     'my message text...',
+    #     item_id: 'itemId'
+    #   )
     #
     def create_message(conv, text, **options)
-      call(:post, "/conversations/#{conv}/messages", {
+      item_id = options[:item_id]
+      path = "/conversations/#{conv}/messages"
+      path += "/#{item_id}" unless item_id.nil?
+      options.delete(:item_id)
+      call(:post, path, {
         'content' => text,
         **options,
       } )
@@ -121,7 +138,7 @@ module CircuitClient
       call(:get, "/conversations")
     end
 
-		# Create a new group conversation
+    # Create a new group conversation
     def create_group_conversation(participants, topic)
       call(:post, '/conversations/group', {
         participants: participants,
@@ -129,14 +146,14 @@ module CircuitClient
       } )
     end
 
-		# Create a new 1:1 conversation
+    # Create a new 1:1 conversation
     def create_direct_conversation(participant)
       call(:post, '/conversations/direct', {
         participant: participant,
       } )
     end
 
-		# Remove participants from a conversation
+    # Remove participants from a conversation
     def delete_group_conversation_participants(conv, participants)
       call(:delete, "/conversations/group/#{conv}/participants", {
         participants: participants,
@@ -148,7 +165,7 @@ module CircuitClient
       delete_group_conversation_participants(conv, [current_user['userId']])
     end
 
-		# Get the profile of the connections user
+    # Get the profile of the connections user
     def get_user_profile
       call(:get, "/users/profile")
     end
@@ -158,17 +175,17 @@ module CircuitClient
       @current_user ||= get_user_profile
     end
 
-		# Get profile of a user
+    # Get profile of a user
     def get_users(id)
       call(:get, "/users/#{id}")
     end
 
-		# Get presence information of a user
+    # Get presence information of a user
     def get_users_presence(id)
       call(:get, "/users/#{id}/presence")
     end
 
-		private
+    private
 
     def call(method, path, payload = {}, headers = {})
       response = connection.send(method) do |req|
@@ -186,7 +203,5 @@ module CircuitClient
       end
       return JSON.parse(response.body) if response.success?
     end
-
   end
 end
-
