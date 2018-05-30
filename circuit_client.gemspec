@@ -1,7 +1,7 @@
 # Ensure we require the local version and not one we might have installed already
 spec = Gem::Specification.new do |s| 
   s.name = 'circuit_client'
-  s.version = '0.0.3'
+  s.version = '0.0.4'
   s.author = 'Markus Benning'
   s.email = 'ich@markusbenning.de'
   s.homepage = 'https://github.com/benningm/circuit_client'
