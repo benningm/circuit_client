@@ -7,7 +7,7 @@ module CircuitClient
       if !content_type.nil? && content_type.match(/application\/json/)
         begin
           error = JSON.parse(ex[:body])
-          super("server response: #{error['errorDescription']} (status: #{ex[:status]})")
+          super("server response: #{error['errorDescription'] || error} (status: #{ex[:status]})")
         rescue JSON::ParserError
           super("server response with status #{ex[:status]} and malformed JSON")
         end

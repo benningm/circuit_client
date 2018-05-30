@@ -10,15 +10,19 @@ module CircuitClient
   # client for accessing circuit API
   class Client
     # Set the hostname of the circuit system
+    # Default: eu.yourcircuit.com
     attr_accessor :host
 
     # The base path of the API
+    # Default: /rest/v2
     attr_accessor :base_path
 
     # The protocol to use 'http' or 'https'
+    # Default: 'https'
     attr_accessor :protocol
 
     # Timeout for http requests
+    # Default: 60
     attr_accessor :timeout
 
     # The client_id for authentication
@@ -30,7 +34,13 @@ module CircuitClient
     # The authentication method to use (currently only :client_credentials supported)
     attr_accessor :auth_method
 
+    # Comma-delimited set of permissions that the application requests
+    # ALL, READ_USER_PROFILE, WRITE_USER_PROFILE, READ_CONVERSATIONS, WRITE_CONVERSATIONS, READ_USER, CALLS
+    # Default: ALL
+    attr_accessor :auth_scope
+
     # Enable tracing (outputs http requests to STDOUT)
+    # Default: false (disabled)
     attr_accessor :trace
 
     # Initialize a new client
@@ -48,6 +58,7 @@ module CircuitClient
       @base_path = '/rest/v2'
       @protocol = 'https'
       @auth_method = :client_credentials
+      @auth_scope = 'ALL'
       @timeout = 60
       @trace = false
       yield self
@@ -81,7 +92,7 @@ module CircuitClient
         client_id: @client_id,
         client_secret: @client_secret,
         grant_type: 'client_credentials',
-        scope: 'ALL',
+        scope: @auth_scope,
       } )
       data = JSON.parse(response.body)
       data['access_token']

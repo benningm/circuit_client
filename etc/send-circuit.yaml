@@ -1,4 +1,11 @@
 ---
+# see also: https://circuit.github.io/oauth.html#client_credentials
+#
+# has to match the permissions granted to your client
+# must be configured if your client credentials are restricted
+auth_scope: 'ALL'
+# id and secret of your account
 client_id: abcd...
 client_secret: abcd...
+# an optional timeout
 timeout: 30
