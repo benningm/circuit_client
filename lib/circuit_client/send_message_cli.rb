@@ -133,6 +133,7 @@ END_USAGE
         c.host = Config.host
         c.client_id = Config.client_id
         c.client_secret = Config.client_secret
+        c.auth_scope = Config.auth_scope
         c.trace = @trace
         c.timeout = Config.timeout
       end
