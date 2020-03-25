@@ -1,7 +1,7 @@
 # Ensure we require the local version and not one we might have installed already
 spec = Gem::Specification.new do |s| 
   s.name = 'circuit_client'
-  s.version = '0.0.4'
+  s.version = '1.0.0'
   s.author = 'Markus Benning'
   s.email = 'ich@markusbenning.de'
   s.homepage = 'https://github.com/benningm/circuit_client'
@@ -14,7 +14,5 @@ spec = Gem::Specification.new do |s|
   s.executables << 'send-circuit'
   s.add_development_dependency('rake', '~> 12')
   s.add_development_dependency('rdoc', '~> 6')
-  s.add_development_dependency('aruba', '~> 0')
-  s.add_runtime_dependency('faraday', '~> 0')
-  s.add_runtime_dependency('typhoeus', '~> 1')
+  s.add_runtime_dependency('faraday', '~> 1')
 end

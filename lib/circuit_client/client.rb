@@ -1,6 +1,4 @@
 require 'faraday'
-require 'typhoeus'
-require 'typhoeus/adapters/faraday'
 require 'uri'
 require 'json'
 
@@ -66,10 +64,10 @@ module CircuitClient
 
     # The faraday http connection object
     def connection
-      @connection ||= Faraday.new(url: base_uri.to_s) do |faraday|
-        faraday.response :logger if @trace
-        faraday.use CircuitClient::ErrorMiddleware
-        faraday.adapter :typhoeus
+      @connection ||= Faraday.new(url: base_uri.to_s) do |c|
+        c.response :logger if @trace
+        c.use CircuitClient::ErrorMiddleware
+        c.adapter Faraday.default_adapter
       end
     end
 
@@ -86,14 +84,19 @@ module CircuitClient
 
     # Authenticate using client_credentials method
     def auth_client_credentials
-      raise "client_id parameter required" if @client_id.nil?
-      raise "client_secret parameter required" if @client_secret.nil?
-      response = connection.post(build_uri('/oauth/token'), {
-        client_id: @client_id,
-        client_secret: @client_secret,
-        grant_type: 'client_credentials',
-        scope: @auth_scope,
-      } )
+      raise 'client_id parameter required' if @client_id.nil?
+      raise 'client_secret parameter required' if @client_secret.nil?
+
+      response = connection.post(build_uri('/oauth/token')) do |req|
+        req.headers['Content-Type'] = 'application/x-www-form-urlencoded'
+        req.body = URI.encode_www_form(
+          client_id: @client_id,
+          client_secret: @client_secret,
+          grant_type: 'client_credentials',
+          scope: @auth_scope
+        )
+      end
+
       data = JSON.parse(response.body)
       data['access_token']
     end
@@ -138,37 +141,45 @@ module CircuitClient
       path = "/conversations/#{conv}/messages"
       path += "/#{item_id}" unless item_id.nil?
       options.delete(:item_id)
-      call(:post, path, {
-        'content' => text,
-        **options,
-      } )
+      call(
+        :post,
+        path,
+        content: text,
+        **options
+      )
     end
 
     # List all conversation of the user
     def list_conversations
-      call(:get, "/conversations")
+      call(:get, '/conversations')
     end
 
     # Create a new group conversation
     def create_group_conversation(participants, topic)
-      call(:post, '/conversations/group', {
+      call(
+        :post,
+        '/conversations/group',
         participants: participants,
-        topic: topic,
-      } )
+        topic: topic
+      )
     end
 
     # Create a new 1:1 conversation
     def create_direct_conversation(participant)
-      call(:post, '/conversations/direct', {
-        participant: participant,
-      } )
+      call(
+        :post,
+        '/conversations/direct',
+        participant: participant
+      )
     end
 
     # Remove participants from a conversation
     def delete_group_conversation_participants(conv, participants)
-      call(:delete, "/conversations/group/#{conv}/participants", {
-        participants: participants,
-      } )
+      call(
+        :delete,
+        "/conversations/group/#{conv}/participants",
+        participants: participants
+      )
     end
 
     # Remove the current_user from a conversation
@@ -178,7 +189,7 @@ module CircuitClient
 
     # Get the profile of the connections user
     def get_user_profile
-      call(:get, "/users/profile")
+      call(:get, '/users/profile')
     end
 
     # A cached version of the current connections user profile
